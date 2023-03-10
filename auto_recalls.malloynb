@@ -7,7 +7,12 @@
   {
     "kind": 2,
     "language": "malloy",
-    "value": "source: auto_recalls is table('duckdb:auto_recalls.csv') {\n  measure: \n    recall_count is count()\n    percent_of_recalls is recall_count/all(recall_count)*100\n    total_defects is `Potentially Affected`.sum()\n  dimension:\n      recall_url is concat(\n        'https://www.nhtsa.gov/recalls?nhtsaId=',\n        `NHTSA ID`\n    )\n\n  query: recent_recalls is {\n    group_by:\n      recall_date is `Report Received Date`::string\n      `NHTSA ID`\n      recall_url\n      Manufacturer\n      Subject\n      `Potentially Affected`\n    order_by: 1 desc\n    limit: 10\n  }\n\n  query: by_year_line_chart is {\n    group_by: recall_year is year(`Report Received Date`)\n    aggregate:\n      recall_count\n    order_by: recall_year\n  }\n}"
+    "value": "source: auto_recalls is table('duckdb:auto_recalls.csv') {\n  measure: \n    recall_count is count()\n    percent_of_recalls is recall_count/all(recall_count)*100\n    total_defects is `Potentially Affected`.sum()\n  dimension:\n      recall_url is concat(\n        'https://www.nhtsa.gov/recalls?nhtsaId=',\n        `NHTSA ID`\n    )\n\n  query: recent_recalls is {\n    group_by:\n      recall_date is `Report Received Date`::string\n      `NHTSA ID`\n      recall_url\n      Manufacturer\n      Subject\n      `Potentially Affected`\n    order_by: 1 desc\n    limit: 10\n  }\n\n  query: by_year is {\n    group_by: recall_year is year(`Report Received Date`)\n    aggregate:\n      recall_count\n    order_by: recall_year\n  }\n}"
+  },
+  {
+    "kind": 2,
+    "language": "malloy",
+    "value": "// this is broken\n\nquery: auto_recalls -> by_year\n// --! style line_chart\n\n"
   },
   {
     "kind": 1,
@@ -37,7 +42,7 @@
   {
     "kind": 2,
     "language": "malloy",
-    "value": "  query: auto_recalls -> by_year_line_chart\n // --! style line_chart "
+    "value": "  query: auto_recalls -> by_year\n // --! style line_chart "
   },
   {
     "kind": 1,
@@ -67,6 +72,6 @@
   {
     "kind": 2,
     "language": "malloy",
-    "value": "query: auto_recalls-> {\n  group_by: Manufacturer\n  aggregate: recall_count\n  nest: by_year_line_chart + {group_by: `Recall Type`}\n  nest: recent_recalls + {limit: 6}\n  nest: biggest_recalls  is recent_recalls + {\n    order_by: `Potentially Affected` desc\n    limit: 6\n  }\n  limit: 5\n}\n// --! style dashboard"
+    "value": "query: auto_recalls-> {\n  group_by: Manufacturer\n  aggregate: recall_count\n  nest: by_year_line_chart is by_year + {group_by: `Recall Type`}\n  nest: recent_recalls + {limit: 6}\n  nest: biggest_recalls  is recent_recalls + {\n    order_by: `Potentially Affected` desc\n    limit: 6\n  }\n  limit: 5\n}\n// --! style dashboard"
   }
 ]
