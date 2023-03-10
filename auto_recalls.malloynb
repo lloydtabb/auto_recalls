@@ -37,7 +37,7 @@
   {
     "kind": 2,
     "language": "malloy",
-    "value": "  query: auto_recalls -> by_year_line_chart + {\n    where: year(`Report Received Date`) > 1980\n  }\n // --! style line_chart "
+    "value": "  query: auto_recalls -> by_year_line_chart + {\n    where: `Report Received Date` > @1980 & < @2022\n  }\n // --! style line_chart "
   },
   {
     "kind": 1,
@@ -47,7 +47,7 @@
   {
     "kind": 2,
     "language": "malloy",
-    "value": "  query: auto_recalls -> {\n    where: year(`Report Received Date`) > 2010\n    nest: top_manufacturers is {\n      group_by: Manufacturer\n      aggregate: recall_count\n      limit: 5\n    }\n    nest: x is {\n      group_by: Manufacturer, recall_year is year(`Report Received Date`)\n      aggregate:\n        recall_count\n    }\n  }\n  -> {\n    where: top_manufacturers.Manufacturer = x.Manufacturer\n    group_by: x.recall_year, x.recall_count, x.Manufacturer,\n    limit: 100000\n    order_by: 1, 3\n  }\n // --! style line_chart "
+    "value": "  query: auto_recalls -> {\n    where: `Report Received Date` > @2010\n    nest: top_manufacturers is {\n      group_by: Manufacturer\n      aggregate: recall_count\n      limit: 5\n    }\n    nest: x is {\n      group_by: Manufacturer, recall_year is year(`Report Received Date`)\n      aggregate:\n        recall_count\n    }\n  }\n  -> {\n    where: top_manufacturers.Manufacturer = x.Manufacturer\n    group_by: x.recall_year, x.recall_count, x.Manufacturer,\n    limit: 100000\n    order_by: 1, 3\n  }\n // --! style line_chart "
   },
   {
     "kind": 1,
