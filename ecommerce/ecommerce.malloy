@@ -1,8 +1,8 @@
 // duckdb sources
-source: users_table is duckdb.table('malloy_samples.users') extend {}
-source: product_table is duckdb.table('malloy_samples.products') extend {}
-source: inventory_items_table is duckdb.table('malloy_samples.inventory_items') extend {}
-source: order_items_table is duckdb.table('malloy_samples.order_items') extend {}
+source: users_table is duckdb.table('gs://malloyyo/ecommerce/users.parquet') extend {}
+source: product_table is duckdb.table('gs://malloyyo/ecommerce/products.parquet') extend {}
+source: inventory_items_table is duckdb.table('gs://malloyyo/ecommerce/inventory_items.parquet') extend {}
+source: order_items_table is duckdb.table('gs://malloyyo/ecommerce/order_items.parquet') extend {}
 
 
 source: users is users_table extend {

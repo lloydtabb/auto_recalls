@@ -1,5 +1,5 @@
 #" Baby names from the Social Security Administration "
-source: baby_names is duckdb.table('mayolo.baby_names') extend {
+source: baby_names is duckdb.table('gs://malloyyo/baby_names/baby_names.parquet') extend {
   measure:
     record_count is count()
     total_babies is `number`.sum()
@@ -16,4 +16,9 @@ source: baby_names is duckdb.table('mayolo.baby_names') extend {
       pick '1950-1999' when `year` < 2000
       else '2000+'
     name_length is length(name)
+
+  view: births_by_decade is {
+    group_by: decade
+    aggregate: total_babies
+  }
 }
