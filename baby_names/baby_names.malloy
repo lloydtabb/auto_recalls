@@ -1,24 +1,35 @@
 #" Baby names from the Social Security Administration "
 source: baby_names is duckdb.table('gs://malloyyo/baby_names/baby_names.parquet') extend {
-  measure:
-    record_count is count()
-    total_babies is `number`.sum()
-    avg_babies_per_record is `number`.avg()
-    max_babies is `number`.max()
-    distinct_names is count(name)
-    earliest_year is `year`.min()
-    latest_year is `year`.max()
+  // don't export reserved words as columns.
+  rename:
+    birth_year is `year`  
+    num_births is `number`
+
   dimension:
     is_female is gender = 'F'
-    decade is floor(`year` / 10) * 10
+    decade is floor(birth_year / 10) * 10
     era is
-      pick 'Pre-1950' when `year` < 1950
-      pick '1950-1999' when `year` < 2000
+      pick 'Pre-1950' when birth_year < 1950
+      pick '1950-1999' when birth_year < 2000
       else '2000+'
     name_length is length(name)
+    region is state ?
+      pick 'Northeast' when = 'CT' | 'ME' | 'MA' | 'NH' | 'RI' | 'VT' | 'NJ' | 'NY' | 'PA'
+      pick 'Midwest'   when = 'IL' | 'IN' | 'MI' | 'OH' | 'WI' | 'IA' | 'KS' | 'MN' | 'MO' | 'NE' | 'ND' | 'SD'
+      pick 'South'     when = 'DE' | 'FL' | 'GA' | 'MD' | 'NC' | 'SC' | 'VA' | 'DC' | 'WV' | 'AL' | 'KY' | 'MS' | 'TN' | 'AR' | 'LA' | 'OK' | 'TX'
+      pick 'West'      when = 'AZ' | 'CO' | 'ID' | 'MT' | 'NV' | 'NM' | 'UT' | 'WY' | 'AK' | 'CA' | 'HI' | 'OR' | 'WA'
+      else 'Other'
+
+  measure:
+    total_babies is num_births.sum()
+    # percent
+    percent_of_population is total_babies/all(total_babies)
+    distinct_names is count(name)
+    earliest_year is birth_year.min()
+    latest_year is birth_year.max()
 
   view: births_by_decade is {
     group_by: decade
-    aggregate: total_babies
+    aggregate: total_babies, percent_of_population
   }
 }
