@@ -1,8 +1,19 @@
+##! experimental
 #" Baby names from the Social Security Administration "
-source: baby_names is duckdb.table('gs://malloyyo/baby_names/baby_names.parquet') extend {
+source: baby_names is duckdb.table('gs://malloyyo/baby_names/baby_names.parquet') include {
+  private: `year`, `number`
+  public: 
+    #" 'F' or 'M'"
+    gender,
+    #" First name of the babey
+    name,
+    #" Two letter state code
+    state,
+    *
+} extend {
   // don't export reserved words as columns.
-  rename:
-    birth_year is `year`  
+  dimension:
+    birth_year is `year`::number
     num_births is `number`
 
   dimension:
@@ -21,6 +32,7 @@ source: baby_names is duckdb.table('gs://malloyyo/baby_names/baby_names.parquet'
       else 'Other'
 
   measure:
+    #" Total babies born in YEAR, GENDER, NAME
     total_babies is num_births.sum()
     # percent
     percent_of_population is total_babies/all(total_babies)
@@ -31,5 +43,18 @@ source: baby_names is duckdb.table('gs://malloyyo/baby_names/baby_names.parquet'
   view: births_by_decade is {
     group_by: decade
     aggregate: total_babies, percent_of_population
+    order_by: decade
+  }
+
+  # line_chart
+  view:births_by_gender is {
+    # x
+    group_by: birth_year
+    # series
+    group_by: gender
+    # y
+    aggregate: total_babies
+    order_by: birth_year
+
   }
 }
