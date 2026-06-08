@@ -1,5 +1,5 @@
 #" Auto recalls from the NHTS Aanalyzed by component category and recall trends over time. Data source: https://www.nhtsa.gov/recalls"
-source: auto_recalls is duckdb.table('gs://malloyyo/auto_recalls/auto_recalls.parquet') extend {
+source: auto_recalls is duckdb.table('https://storage.googleapis.com/malloyyo/auto_recalls/auto_recalls.parquet') extend {
   measure:
     recall_count is count()
     percent_of_recalls is recall_count / all(recall_count) * 100
